@@ -1,3 +1,5 @@
 imie:
+
 nazwisko:
+
 grupa:
