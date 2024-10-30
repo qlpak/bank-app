@@ -1,6 +1,6 @@
 import unittest
 
-from ..Konto import Konto
+from ..Konto import Konto, KontoFirmowe
 
 class TestCreateBankAccount(unittest.TestCase):
     imie = 'imie'
@@ -41,3 +41,65 @@ class TestCreateBankAccount(unittest.TestCase):
         konto = Konto(self.imie, self.nazwisko, pesel_mlody, "PROM_abc")
         self.assertEqual(konto.saldo, 50, "Osoba która urodzila sie po 1960 powinna dostać 50 zł")
     #     #tutaj proszę dodawać nowe testy
+
+    def test_przelew_wychodzacy_successful(self):
+        nadawca = Konto(self.imie, self.nazwisko, self.pesel)
+        odbiorca = Konto("marek", "markowski", "10987654321")
+        nadawca.saldo = 100
+        wynik = nadawca.przelew_wychodzacy(50, odbiorca)
+        self.assertEqual(wynik, True, "Przelew powinien się udać przy wystarczających środkach")
+        self.assertEqual(nadawca.saldo, 50, "Saldo nadawcy powinno zmniejszyć się o kwotę przelewu")
+        self.assertEqual(odbiorca.saldo, 50, "Saldo odbiorcy powinno zwiększyć się o kwotę przelewu")
+
+    def test_przelew_wychodzacy_insufficient_funds(self):
+        nadawca = Konto(self.imie, self.nazwisko, self.pesel)
+        odbiorca = Konto("ania", "przymus", "10987654321")
+        nadawca.saldo = 30
+        wynik = nadawca.przelew_wychodzacy(50, odbiorca)
+        self.assertEqual(wynik, False, "Przelew powinien zakończyć się niepowodzeniem przy niewystarczających środkach")
+        self.assertEqual(nadawca.saldo, 30, "Saldo nadawcy powinno pozostać bez zmian")
+        self.assertEqual(odbiorca.saldo, 0, "Saldo odbiorcy powinno pozostać bez zmian")
+
+    def test_konto_firmowe_z_poprawnym_nip(self):
+        konto_firmowe = KontoFirmowe("spolka", "1234567890")
+        self.assertEqual(konto_firmowe.nip, "1234567890", "NIP powinien być zapisany poprawnie")
+
+    def test_konto_firmowe_z_nieprawidlowym_nip(self):
+        konto_firmowe = KontoFirmowe("firma x", "12345")
+        self.assertEqual(konto_firmowe.nip, "Niepoprawny NIP!", "NIP niepoprawny")
+
+    def test_przelew_ekspresowy_osobisty(self):
+        nadawca = Konto(self.imie, self.nazwisko, self.pesel)
+        odbiorca = Konto("nikola", "lewandowska", "10987654321")
+        nadawca.saldo = 10
+        wynik = nadawca.przelew_ekspresowy(5, odbiorca)
+        self.assertEqual(wynik, True, "Przelew ekspresowy powinien się powieść przy wystarczających środkach")
+        self.assertEqual(nadawca.saldo, 4, "Saldo nadawcy powinno zostać pomniejszone o kwotę przelewu i opłatę")
+        self.assertEqual(odbiorca.saldo, 5, "Saldo odbiorcy powinno zwiększyć się o kwotę przelewu")
+
+    def test_przelew_ekspresowy_osobisty_insufficient_funds(self):
+        nadawca = Konto(self.imie, self.nazwisko, self.pesel)
+        odbiorca = Konto("kto", "tam", "10987654321")
+        nadawca.saldo = 5
+        wynik = nadawca.przelew_ekspresowy(5, odbiorca)
+        self.assertEqual(wynik, False, "Przelew ekspresowy powinien się nie powieść przy niewystarczających środkach")
+        self.assertEqual(nadawca.saldo, 5, "Saldo nadawcy powinno pozostać bez zmian")
+        self.assertEqual(odbiorca.saldo, 0, "Saldo odbiorcy powinno pozostać bez zmian")
+
+    def test_przelew_ekspresowy_firmowy(self):
+        nadawca = KontoFirmowe("pzu", "1234567890")
+        odbiorca = Konto("ktos", "ciekawski", "10987654321")
+        nadawca.saldo = 10
+        wynik = nadawca.przelew_ekspresowy(5, odbiorca)
+        self.assertEqual(wynik, True, "Przelew ekspresowy powinien się powieść przy wystarczających środkach")
+        self.assertEqual(nadawca.saldo, 0, "Saldo nadawcy powinno zostać pomniejszone o kwotę przelewu i opłatę")
+        self.assertEqual(odbiorca.saldo, 5, "Saldo odbiorcy powinno zwiększyć się o kwotę przelewu")
+
+    def test_przelew_ekspresowy_firmowy_insufficient_funds(self):
+        nadawca = KontoFirmowe("ccc", "1234567890")
+        odbiorca = Konto("lukasz", "k", "10987654321")
+        nadawca.saldo = 5
+        wynik = nadawca.przelew_ekspresowy(5, odbiorca)
+        self.assertEqual(wynik, False, "Przelew ekspresowy powinien się nie powieść przy niewystarczających środkach")
+        self.assertEqual(nadawca.saldo, 5, "Saldo nadawcy powinno pozostać bez zmian")
+        self.assertEqual(odbiorca.saldo, 0, "Saldo odbiorcy powinno pozostać bez zmian")
