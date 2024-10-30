@@ -29,3 +29,35 @@ class Konto:
             yob += 1900
 
         return yob > 1960
+
+    def przelew_wychodzacy(self, kwota, konto_docelowe):
+        if self.saldo >= kwota:
+            self.saldo -= kwota
+            konto_docelowe.przelew_przychodzacy(kwota)
+            return True
+        return False
+
+    def przelew_przychodzacy(self, kwota):
+        self.saldo += kwota
+
+    def przelew_ekspresowy(self, kwota, konto_docelowe):
+        oplata = 1
+        if self.saldo >= kwota + oplata:
+            self.saldo -= (kwota + oplata)
+            konto_docelowe.przelew_przychodzacy(kwota)
+            return True
+        return False
+
+class KontoFirmowe(Konto):
+    def __init__(self, nazwa_firmy, nip):
+        self.nazwa_firmy = nazwa_firmy
+        self.nip = nip if len(nip) == 10 else "Niepoprawny NIP!"
+        self.saldo = 0
+
+    def przelew_ekspresowy(self, kwota, konto_docelowe):
+        oplata = 5
+        if self.saldo >= kwota + oplata:
+            self.saldo -= (kwota + oplata)
+            konto_docelowe.przelew_przychodzacy(kwota)
+            return True
+        return False
