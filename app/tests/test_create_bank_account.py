@@ -103,3 +103,17 @@ class TestCreateBankAccount(unittest.TestCase):
         self.assertEqual(wynik, False, "Przelew ekspresowy powinien się nie powieść przy niewystarczających środkach")
         self.assertEqual(nadawca.saldo, 5, "Saldo nadawcy powinno pozostać bez zmian")
         self.assertEqual(odbiorca.saldo, 0, "Saldo odbiorcy powinno pozostać bez zmian")
+
+    def test_historia_przelewow(self):
+        nadawca = Konto("Kacperek", "Ziutowski", "12345678901")
+        odbiorca = Konto("Coco", "Gofer", "10987654321")
+        nadawca.saldo = 1000
+
+        odbiorca.przelew_przychodzacy(500)
+        self.assertEqual(odbiorca.historia, [500], "Historia powinna zawierać tylko 500")
+
+        nadawca.przelew_wychodzacy(300, odbiorca)
+        self.assertEqual(nadawca.historia, [-300], "Historia powinna zawierać -300")
+
+        nadawca.przelew_ekspresowy(200, odbiorca)
+        self.assertEqual(nadawca.historia, [-300, -200, -1], "Historia powinna zawierać kwoty -300, -200, -1")

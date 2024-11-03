@@ -3,6 +3,7 @@ class Konto:
         self.imie = imie
         self.nazwisko = nazwisko
         self.saldo = 0
+        self.historia = []
 
         if len(pesel) == 11:
             self.pesel = pesel
@@ -34,17 +35,21 @@ class Konto:
         if self.saldo >= kwota:
             self.saldo -= kwota
             konto_docelowe.przelew_przychodzacy(kwota)
+            self.historia.append(-kwota)
             return True
         return False
 
     def przelew_przychodzacy(self, kwota):
         self.saldo += kwota
+        self.historia.append(kwota)
 
     def przelew_ekspresowy(self, kwota, konto_docelowe):
         oplata = 1
         if self.saldo >= kwota + oplata:
             self.saldo -= (kwota + oplata)
             konto_docelowe.przelew_przychodzacy(kwota)
+            self.historia.append(-kwota)
+            self.historia.append(-oplata)
             return True
         return False
 
@@ -53,11 +58,14 @@ class KontoFirmowe(Konto):
         self.nazwa_firmy = nazwa_firmy
         self.nip = nip if len(nip) == 10 else "Niepoprawny NIP!"
         self.saldo = 0
+        self.historia = []
 
     def przelew_ekspresowy(self, kwota, konto_docelowe):
         oplata = 5
         if self.saldo >= kwota + oplata:
             self.saldo -= (kwota + oplata)
             konto_docelowe.przelew_przychodzacy(kwota)
+            self.historia.append(-kwota)
+            self.historia.append(-oplata)
             return True
         return False
