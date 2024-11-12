@@ -58,15 +58,16 @@ class KontoOsobiste(Konto):
             return True
         return False
 
+    def czy_spelniony_warunek_I(self):
+        return len(self.historia) >= 3 and all(transakcja > 0 for transakcja in self.historia[-3:])
+
+    def czy_spelniony_warunek_II(self, kwota):
+        return len(self.historia) >= 5 and sum(self.historia[-5:]) > kwota
+
     def zaciagnij_kredyt(self, kwota):
-        if len(self.historia) >= 3 and all(transakcja > 0 for transakcja in self.historia[-3:]):
+        if self.czy_spelniony_warunek_I() or self.czy_spelniony_warunek_II(kwota):
             self.saldo += kwota
             return True
-
-        if len(self.historia) >= 5 and sum(self.historia[-5:]) > kwota:
-            self.saldo += kwota
-            return True
-
         return False
 
 
