@@ -1,6 +1,6 @@
 import unittest
 
-from ..Konto import Konto, KontoFirmowe
+from ..Konto import Konto, KontoOsobiste, KontoFirmowe
 
 class TestCreateBankAccount(unittest.TestCase):
     imie = 'imie'
@@ -69,7 +69,7 @@ class TestCreateBankAccount(unittest.TestCase):
         self.assertEqual(konto_firmowe.nip, "Niepoprawny NIP!", "NIP niepoprawny")
 
     def test_przelew_ekspresowy_osobisty(self):
-        nadawca = Konto(self.imie, self.nazwisko, self.pesel)
+        nadawca = KontoOsobiste(self.imie, self.nazwisko, self.pesel)
         odbiorca = Konto("nikola", "lewandowska", "10987654321")
         nadawca.saldo = 10
         wynik = nadawca.przelew_ekspresowy(5, odbiorca)
@@ -78,7 +78,7 @@ class TestCreateBankAccount(unittest.TestCase):
         self.assertEqual(odbiorca.saldo, 5, "Saldo odbiorcy powinno zwiększyć się o kwotę przelewu")
 
     def test_przelew_ekspresowy_osobisty_insufficient_funds(self):
-        nadawca = Konto(self.imie, self.nazwisko, self.pesel)
+        nadawca = KontoOsobiste(self.imie, self.nazwisko, self.pesel)
         odbiorca = Konto("kto", "tam", "10987654321")
         nadawca.saldo = 5
         wynik = nadawca.przelew_ekspresowy(5, odbiorca)
@@ -105,7 +105,7 @@ class TestCreateBankAccount(unittest.TestCase):
         self.assertEqual(odbiorca.saldo, 0, "Saldo odbiorcy powinno pozostać bez zmian")
 
     def test_historia_przelewow(self):
-        nadawca = Konto("Kacperek", "Ziutowski", "12345678901")
+        nadawca = KontoOsobiste("Kacperek", "Ziutowski", "12345678901")
         odbiorca = Konto("Coco", "Gofer", "10987654321")
         nadawca.saldo = 1000
 
@@ -117,3 +117,38 @@ class TestCreateBankAccount(unittest.TestCase):
 
         nadawca.przelew_ekspresowy(200, odbiorca)
         self.assertEqual(nadawca.historia, [-300, -200, -1], "Historia powinna zawierać kwoty -300, -200, -1")
+
+    def test_kredyt_bez_histori(self):
+        konto = KontoOsobiste(self.imie, self.nazwisko, self.pesel)
+        wynik = konto.zaciagnij_kredyt(100)
+        self.assertFalse(wynik, "kredyt nie udzielony przy brak hustorii")
+        self.assertEqual(konto.saldo, 0, "saldo nie ma sie zmieniac")
+
+    def test_kredyt_niewystarczajaca_historia(self):
+        konto = KontoOsobiste(self.imie, self.nazwisko, self.pesel)
+        konto.historia = [100, -50]
+        wynik = konto.zaciagnij_kredyt(100)
+        self.assertFalse(wynik, "kredyt nie uzielony bo nie wystarczajaca liczba transakcji")
+        self.assertEqual(konto.saldo, 0, "saldo ma pozosatc bez zmian")
+
+    def test_kredyt_warunek_a(self):
+        konto = KontoOsobiste(self.imie, self.nazwisko, self.pesel)
+        konto.historia = [100, 200, 300]
+        wynik = konto.zaciagnij_kredyt(500)
+        self.assertTrue(wynik, "kredyt udzielony przy trzech ostatnich wplatach")
+        self.assertEqual(konto.saldo, 500, "saldo zwiekszone o kwote kredytu")
+
+    def test_kredyt_warunek_b(self):
+        konto = KontoOsobiste(self.imie, self.nazwisko, self.pesel)
+        konto.historia = [150, 200, 100, -50, 250]
+        wynik = konto.zaciagnij_kredyt(500)
+        self.assertTrue(wynik, "kredyt powinien zosatc udzielon")
+        self.assertEqual(konto.saldo, 500, "saldo ma byc zwiekszone o kwote kredytu")
+
+    def test_kredyt_brak_warunkow(self):
+        konto = KontoOsobiste(self.imie, self.nazwisko, self.pesel)
+        konto.historia = [50, -50, 30, 40, -20]
+        wynik = konto.zaciagnij_kredyt(200)
+        self.assertFalse(wynik, "warunki niespelnione wiec kredyt nie udzielony")
+        self.assertEqual(konto.saldo, 0, "saldo bez zmian")
+

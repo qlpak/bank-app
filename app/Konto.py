@@ -43,6 +43,11 @@ class Konto:
         self.saldo += kwota
         self.historia.append(kwota)
 
+
+class KontoOsobiste(Konto):
+    def __init__(self, imie, nazwisko, pesel):
+        super().__init__(imie, nazwisko, pesel)
+
     def przelew_ekspresowy(self, kwota, konto_docelowe):
         oplata = 1
         if self.saldo >= kwota + oplata:
@@ -52,6 +57,18 @@ class Konto:
             self.historia.append(-oplata)
             return True
         return False
+
+    def zaciagnij_kredyt(self, kwota):
+        if len(self.historia) >= 3 and all(transakcja > 0 for transakcja in self.historia[-3:]):
+            self.saldo += kwota
+            return True
+
+        if len(self.historia) >= 5 and sum(self.historia[-5:]) > kwota:
+            self.saldo += kwota
+            return True
+
+        return False
+
 
 class KontoFirmowe(Konto):
     def __init__(self, nazwa_firmy, nip):
