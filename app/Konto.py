@@ -87,3 +87,10 @@ class KontoFirmowe(Konto):
             self.historia.append(-oplata)
             return True
         return False
+
+    def zaciagnij_kredyt(self, kwota):
+        if self.saldo >= 2 * kwota:
+            if any(transakcja == -1775 for transakcja in self.historia):
+                self.saldo += kwota
+                return True
+        return False
