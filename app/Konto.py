@@ -88,9 +88,14 @@ class KontoFirmowe(Konto):
             return True
         return False
 
+    def saldo_enough(self, kwota):
+        return self.saldo >= 2 * kwota
+
+    def zus_zaplacony(self):
+        return any(transakcja == -1775 for transakcja in self.historia)
+
     def zaciagnij_kredyt(self, kwota):
-        if self.saldo >= 2 * kwota:
-            if any(transakcja == -1775 for transakcja in self.historia):
-                self.saldo += kwota
-                return True
+        if self.saldo_enough(kwota) and self.zus_zaplacony():
+            self.saldo += kwota
+            return True
         return False
