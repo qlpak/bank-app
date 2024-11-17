@@ -2,30 +2,58 @@ import unittest
 from parameterized import parameterized
 from ..Konto import Konto
 from ..PersonalAccount import KontoOsobiste
+from ..CompanyAccount import KontoFirmowe
 
 class TestTransfers(unittest.TestCase):
-    def setUp(self):
-        self.nadawca = KontoOsobiste("nadawca", "nazwisko", "12345678910")
-        self.odbiorca = Konto("odbiorca", "nazwisko", "10987654321")
-
     @parameterized.expand([
         (100, 50, True, 50, 50, "Przelew powinien się udać przy wystarczających środkach"),
         (30, 50, False, 30, 0, "Przelew powinien zakończyć się niepowodzeniem przy niewystarczających środkach")
     ])
     def test_przelew_wychodzacy(self, saldo_nadawcy, kwota, expected_result, expected_saldo_nadawcy, expected_saldo_odbiorcy, message):
-        self.nadawca.saldo = saldo_nadawcy
-        wynik = self.nadawca.przelew_wychodzacy(kwota, self.odbiorca)
+        nadawca = KontoOsobiste("Jan", "Kowalski", "12345678901")
+        odbiorca = KontoOsobiste("Marek", "Markowski", "10987654321")
+        nadawca.saldo = saldo_nadawcy
+        wynik = nadawca.przelew_wychodzacy(kwota, odbiorca)
         self.assertEqual(wynik, expected_result, message)
-        self.assertEqual(self.nadawca.saldo, expected_saldo_nadawcy, "Saldo nadawcy powinno zmniejszyć się o kwotę przelewu")
-        self.assertEqual(self.odbiorca.saldo, expected_saldo_odbiorcy, "Saldo odbiorcy powinno zwiększyć się o kwotę przelewu")
+        self.assertEqual(nadawca.saldo, expected_saldo_nadawcy, "Saldo nadawcy powinno zmniejszyć się o kwotę przelewu")
+        self.assertEqual(odbiorca.saldo, expected_saldo_odbiorcy, "Saldo odbiorcy powinno zwiększyć się o kwotę przelewu")
+
+    @parameterized.expand([
+        (10, 5, 1, True, 4, 5, "Przelew ekspresowy powinien się powieść przy wystarczających środkach"),
+        (5, 5, 1, False, 5, 0, "Przelew ekspresowy powinien się nie powieść przy niewystarczających środkach"),
+    ])
+    def test_przelew_ekspresowy_osobisty(self, saldo, kwota, oplata, expected_result, saldo_po, saldo_odbiorcy, message):
+        nadawca = KontoOsobiste("Jan", "Kowalski", "12345678901")
+        odbiorca = KontoOsobiste("Nikola", "Lewandowska", "10987654321")
+        nadawca.saldo = saldo
+        wynik = nadawca.przelew_ekspresowy(kwota, odbiorca)
+        self.assertEqual(wynik, expected_result, message)
+        self.assertEqual(nadawca.saldo, saldo_po, "Saldo nadawcy po przelewie ekspresowym nie jest zgodne z oczekiwanym")
+        self.assertEqual(odbiorca.saldo, saldo_odbiorcy, "Saldo odbiorcy po przelewie ekspresowym nie jest zgodne z oczekiwanym")
+
+    @parameterized.expand([
+        (10, 5, 5, True, 0, 5, "Przelew ekspresowy powinien się powieść przy wystarczających środkach"),
+        (5, 5, 5, False, 5, 0, "Przelew ekspresowy powinien się nie powieść przy niewystarczających środkach"),
+    ])
+    def test_przelew_ekspresowy_firmowy(self, saldo, kwota, oplata, expected_result, saldo_po, saldo_odbiorcy, message):
+        nadawca = KontoFirmowe("PZU", "1234567890")
+        odbiorca = Konto("Ktos", "Ciekawski", "10987654321")
+        nadawca.saldo = saldo
+        wynik = nadawca.przelew_ekspresowy(kwota, odbiorca)
+        self.assertEqual(wynik, expected_result, message)
+        self.assertEqual(nadawca.saldo, saldo_po, "Saldo nadawcy po przelewie ekspresowym nie jest zgodne z oczekiwanym")
+        self.assertEqual(odbiorca.saldo, saldo_odbiorcy, "Saldo odbiorcy po przelewie ekspresowym nie jest zgodne z oczekiwanym")
 
     def test_historia_przelewow(self):
-        self.nadawca.saldo = 1000
-        self.odbiorca.przelew_przychodzacy(500)
-        self.assertEqual(self.odbiorca.historia, [500], "Historia powinna zawierać tylko 500")
+        nadawca = KontoOsobiste("Kacperek", "Ziutowski", "12345678901")
+        odbiorca = Konto("Coco", "Gofer", "10987654321")
+        nadawca.saldo = 1000
 
-        self.nadawca.przelew_wychodzacy(300, self.odbiorca)
-        self.assertEqual(self.nadawca.historia, [-300], "Historia powinna zawierać -300")
+        odbiorca.przelew_przychodzacy(500)
+        self.assertEqual(odbiorca.historia, [500], "Historia powinna zawierać tylko 500")
 
-        self.nadawca.przelew_ekspresowy(200, self.odbiorca)
-        self.assertEqual(self.nadawca.historia, [-300, -200, -1], "Historia powinna zawierać kwoty -300, -200, -1")
+        nadawca.przelew_wychodzacy(300, odbiorca)
+        self.assertEqual(nadawca.historia, [-300], "Historia powinna zawierać -300")
+
+        nadawca.przelew_ekspresowy(200, odbiorca)
+        self.assertEqual(nadawca.historia, [-300, -200, -1], "Historia powinna zawierać kwoty -300, -200, -1")
