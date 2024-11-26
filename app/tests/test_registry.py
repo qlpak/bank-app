@@ -19,6 +19,7 @@ class TestRegistry(unittest.TestCase):
 
     def setUp(self):
         AccountRegistry.registry = []
+        self.konto = KontoOsobiste(self.imie, self.nazwisko, self.pesel)
 
     def test_add_acc(self):
         AccountRegistry.add_account(self.konto)
@@ -60,3 +61,44 @@ class TestRegistry(unittest.TestCase):
 
         result = AccountRegistry.search_by_pesel(self.pesel_not)
         self.assertEqual(result, None, "Znaleziono konto, którego nie ma w rejestrze")
+
+    @parameterized.expand([
+        ("konto istnieje", "12345678910", "konto nie zostalo usuniete", 0),
+        ("konto nie istnieje", "99999999999", "zly wynik", 1)
+    ])
+    def test_delete_account_by_pesel(self, test_name, pesel, message, expected_count):
+        AccountRegistry.add_account(self.konto)
+        AccountRegistry.delete_account_by_pesel(pesel)
+        self.assertEqual(AccountRegistry.get_accounts_count(), expected_count, message)
+
+    @parameterized.expand([
+        ("aktualizacja pełna", "12345678910", {"imie": "andrew", "nazwisko": "broski"}, "andrew", "broski"),
+        ("aktualizacja częściowa", "12345678910", {"imie": "andrew"}, "andrew", "Nowak"),
+        ("konto nie istnieje", "99999999999", {"imie": "Test"}, None, None)
+    ])
+    def test_update_account(self, test_name, pesel, updates, expected_imie, expected_nazwisko):
+        AccountRegistry.add_account(self.konto)
+        AccountRegistry.update_account(pesel, **updates)
+        updated_account = AccountRegistry.search_by_pesel(pesel)
+        if updated_account is None:
+            self.assertEqual(updated_account, None, "konto ktore nie istnieje zostalo updateowane")
+        else:
+            self.assertEqual(updated_account.imie, expected_imie, "imie nie zostalo zupdateowane")
+            self.assertEqual(updated_account.nazwisko, expected_nazwisko, "nazwisko nie zostalo zupdateowane")
+
+    @parameterized.expand([
+        ("brak kont", [], 0, "rejestr mial byc pusty"),
+        ("jedno konto", ["konto"], 0, "rejest mial byc pusty"),
+        ("trzy konta", ["konto", "konto_00", "konto_75"], 0, "rejest mial byc pusty")
+    ])
+    def test_clear_registry(self, test_name, accounts_to_add, expected_count, message):
+        for account_name in accounts_to_add:
+            if account_name == "konto":
+                AccountRegistry.add_account(self.konto)
+            elif account_name == "konto_00":
+                AccountRegistry.add_account(self.konto_00)
+            elif account_name == "konto_75":
+                AccountRegistry.add_account(self.konto_75)
+
+        AccountRegistry.clear_registry()
+        self.assertEqual(AccountRegistry.get_accounts_count(), expected_count, message)

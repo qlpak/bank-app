@@ -15,3 +15,26 @@ class AccountRegistry:
             if account.pesel == pesel:
                 return account
         return None
+
+    @classmethod
+    def delete_account_by_pesel(cls, pesel):
+        account = cls.search_by_pesel(pesel)
+        if account:
+            cls.registry.remove(account)
+            return True
+        return False
+
+    @classmethod
+    def update_account(cls, pesel, imie=None, nazwisko=None):
+        account = cls.search_by_pesel(pesel)
+        if account:
+            if imie is not None:
+                account.imie = imie
+            if nazwisko is not None:
+                account.nazwisko = nazwisko
+            return True
+        return False
+
+    @classmethod
+    def clear_registry(cls):
+        cls.registry = []
