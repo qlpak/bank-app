@@ -102,3 +102,16 @@ class TestRegistry(unittest.TestCase):
 
         AccountRegistry.clear_registry()
         self.assertEqual(AccountRegistry.get_accounts_count(), expected_count, message)
+
+
+    @parameterized.expand([
+        ("unikalny pesel", "12345678910", True, "pesel mial być unikalny"),
+        ("zduplikowany PESEL", "12345678910", False, "pesel nie powinien być unikalny"),
+        ("unikalny PESEL - nowy", "99999999999", True, "nowy pesel mial być unikalny")
+    ])
+    def test_is_pesel_unique(self, test_name, pesel, expected_result, message):
+        if not expected_result:
+            AccountRegistry.add_account(self.konto)
+
+        result = AccountRegistry.is_pesel_unique(pesel)
+        self.assertEqual(result, expected_result, message)

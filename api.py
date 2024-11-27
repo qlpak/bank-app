@@ -54,3 +54,15 @@ def count_accounts():
     count = AccountRegistry.get_accounts_count()
     return jsonify({"count": count}), 200
 
+
+@app.route("/api/accounts/unique", methods=['POST'])
+def create_account_with_unique_pesel():
+    data = request.get_json()
+
+    if not AccountRegistry.is_pesel_unique(data["pesel"]):
+        print(f"PESEL already exists: {data['pesel']}")
+        return jsonify({"message": "PESEL already exists"}), 409
+
+    konto = KontoOsobiste(data["imie"], data["nazwisko"], data["pesel"])
+    AccountRegistry.add_account(konto)
+    return jsonify({"message": "Account created"}), 201
