@@ -38,3 +38,7 @@ class AccountRegistry:
     @classmethod
     def clear_registry(cls):
         cls.registry = []
+
+    @classmethod
+    def is_pesel_unique(cls, pesel):
+        return cls.search_by_pesel(pesel) is None
