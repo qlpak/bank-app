@@ -66,3 +66,34 @@ def create_account_with_unique_pesel():
     konto = KontoOsobiste(data["imie"], data["nazwisko"], data["pesel"])
     AccountRegistry.add_account(konto)
     return jsonify({"message": "Account created"}), 201
+
+@app.route("/api/accounts/<pesel>/transfer", methods=['POST'])
+def transfer_funds(pesel):
+    data = request.get_json()
+
+    account = AccountRegistry.search_by_pesel(pesel)
+    if account is None:
+        return jsonify({"message": "nie znaleziono konta"}), 404
+
+    transfer_type = data.get("type")
+    amount = data.get("amount", 0)
+
+    if amount <= 0:
+        return jsonify({"message": "kwota przelewu nieprawidlowa"}), 400
+
+    if transfer_type == "incoming":
+        account.przelew_przychodzacy(amount)
+    elif transfer_type == "outgoing":
+        target_account = AccountRegistry.search_by_pesel(data.get("target_pesel"))
+        if not target_account or not account.przelew_wychodzacy(amount, target_account):
+            return jsonify({"message": "target ne znaleziony lub za malo srodkow"}), 422
+    elif transfer_type == "express":
+        target_account = AccountRegistry.search_by_pesel(data.get("target_pesel"))
+        if not target_account:
+            return jsonify({"message": "nie znaleziono konta"}), 422
+        if not account.przelew_ekspresowy(amount, target_account):
+            return jsonify({"message": "target ne znaleziony lub za malo srodkow"}), 422
+    else:
+        return jsonify({"message": "nienznay typ przelewu"}), 400
+
+    return jsonify({"message": "zlecenie przyjete"}), 200
