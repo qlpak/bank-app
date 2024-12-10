@@ -1,3 +1,6 @@
+import os
+import requests
+from datetime import datetime
 from .Konto import Konto
 
 class KontoFirmowe(Konto):
@@ -6,6 +9,21 @@ class KontoFirmowe(Konto):
         self.nip = nip if len(nip) == 10 else "Niepoprawny NIP!"
         self.saldo = 0
         self.historia = []
+
+        if len(nip) == 10:
+            if not self.waliduj_nip(nip):
+                raise ValueError("Company not registered!!")
+
+    def waliduj_nip(self, nip):
+        url = os.getenv("BANK_APP_MF_URL", "https://wl-test.mf.gov.pl") + f"/api/search/nip/{nip}?date={datetime.today().strftime('%Y-%m-%d')}"
+        try:
+            response = requests.get(url)
+            print(f"API Response: {response.status_code}, {response.text}")
+            return response.status_code == 200
+        except Exception as e:
+            print(f"Request failed: {e}")
+            raise ValueError("API error occurred while validating NIP")
+
 
     def przelew_ekspresowy(self, kwota, konto_docelowe):
         oplata = 5
