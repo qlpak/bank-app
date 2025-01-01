@@ -54,7 +54,6 @@ class AccountRegistry:
         ]
         with open(file_path, 'w') as file:
             json.dump(personal_accounts, file)
-        print(f"plik {file_path} został utworzony")
 
     @classmethod
     def load_backup(cls, file_path: str):

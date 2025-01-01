@@ -18,10 +18,8 @@ class KontoFirmowe(Konto):
         url = os.getenv("BANK_APP_MF_URL", "https://wl-test.mf.gov.pl") + f"/api/search/nip/{nip}?date={datetime.today().strftime('%Y-%m-%d')}"
         try:
             response = requests.get(url)
-            print(f"API Response: {response.status_code}, {response.text}")
             return response.status_code == 200
         except Exception as e:
-            print(f"Request failed: {e}")
             raise ValueError("API error occurred while validating NIP")
 
 
