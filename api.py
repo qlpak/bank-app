@@ -97,3 +97,18 @@ def transfer_funds(pesel):
         return jsonify({"message": "nienznay typ przelewu"}), 400
 
     return jsonify({"message": "zlecenie przyjete"}), 200
+
+@app.route("/api/accounts/backup/dump", methods=['POST'])
+def dump_backup():
+    file_path = "backup.json"
+    AccountRegistry.dump_backup(file_path)
+    return jsonify({"message": f"backup saved to {file_path}"}), 200
+
+@app.route("/api/accounts/backup/load", methods=['POST'])
+def load_backup():
+    file_path = "backup.json"
+    try:
+        AccountRegistry.load_backup(file_path)
+        return jsonify({"message": "backup loaded;)"}), 200
+    except FileNotFoundError:
+        return jsonify({"message": "backup file not found;("}), 404

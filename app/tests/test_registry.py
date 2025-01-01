@@ -1,4 +1,6 @@
 import unittest
+import os
+import json
 from parameterized import parameterized
 from ..PersonalAccount import KontoOsobiste
 from ..AccountRegistry import AccountRegistry
@@ -115,3 +117,21 @@ class TestRegistry(unittest.TestCase):
 
         result = AccountRegistry.is_pesel_unique(pesel)
         self.assertEqual(result, expected_result, message)
+
+    def tearDown(self):
+        if os.path.exists("test_backup.json"):
+            os.remove("test_backup.json")
+
+    def test_dump_backup(self):
+        AccountRegistry.add_account(self.konto)
+        AccountRegistry.dump_backup("test_backup.json")
+        with open("test_backup.json", "r") as file:
+            data = json.load(file)
+        self.assertEqual(len(data), 1, "backup nie zawiera odpowiedniej liczby kont")
+
+    def test_load_backup(self):
+        AccountRegistry.add_account(self.konto)
+        AccountRegistry.dump_backup("test_backup.json")
+        AccountRegistry.clear_registry()
+        AccountRegistry.load_backup("test_backup.json")
+        self.assertEqual(AccountRegistry.get_accounts_count(), 1, "konta nie zostały poprawnie załadowane z backupu")
