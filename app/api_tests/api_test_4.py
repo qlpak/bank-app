@@ -1,5 +1,6 @@
 import unittest
 import requests
+import os
 
 class TestBackupAPI(unittest.TestCase):
     base_url = "http://127.0.0.1:5000/api/accounts"
@@ -33,6 +34,11 @@ class TestBackupAPI(unittest.TestCase):
         self.assertEqual(restored_account.json()["imie"], self.sample_account["imie"])
 
     def test_load_backup_file_not_found(self):
+        if os.path.exists("backup.json"):
+            os.remove("backup.json")
+
         response = requests.post(f"{self.backup_url}/load")
+
         self.assertEqual(response.status_code, 404, "expected file not found error")
-        self.assertEqual(response.json()["message"], "backup file not found")
+        self.assertEqual(response.json()["message"], "backup file not found;(", "Unexpected error message")
+

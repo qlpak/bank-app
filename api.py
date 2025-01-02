@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from app.AccountRegistry import AccountRegistry
 from app.PersonalAccount import KontoOsobiste
 app = Flask(__name__)
+import os
 @app.route("/api/accounts", methods=['POST'])
 def create_account():
     data = request.get_json()
@@ -108,7 +109,11 @@ def dump_backup():
 def load_backup():
     file_path = "backup.json"
     try:
+        if not os.path.exists(file_path):
+            return jsonify({"message": "backup file not found;("}), 404
         AccountRegistry.load_backup(file_path)
-        return jsonify({"message": "backup loaded;)"}), 200
+        return jsonify({"message": "Backup loaded successfully"}), 200
     except FileNotFoundError:
         return jsonify({"message": "backup file not found;("}), 404
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
