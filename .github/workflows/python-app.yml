@@ -53,4 +53,4 @@ jobs:
         python3 -m coverage report --fail-under=100
 
     - name: Run API tests
-      run: python3 -m unittest discover -s app/api_tests -p "api_test_*.py"
+      run: python3 -m unittest discover -s app/api_tests -p "test_api_*.py"
