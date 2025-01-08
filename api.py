@@ -1,12 +1,14 @@
 from flask import Flask, request, jsonify
 from app.AccountRegistry import AccountRegistry
 from app.PersonalAccount import KontoOsobiste
-app = Flask(__name__)
 import os
+
+app = Flask(__name__)
+
 @app.route("/api/accounts", methods=['POST'])
 def create_account():
     data = request.get_json()
-    saldo = data.get("saldo")
+    saldo = data.get("saldo", 0)
     konto = KontoOsobiste(data["name"], data["surname"], data["pesel"])
     konto.saldo = saldo
     AccountRegistry.add_account(konto)
@@ -24,12 +26,10 @@ def get_account_by_pesel(pesel):
         "saldo": account.saldo
     }), 200
 
-
 @app.route("/api/accounts/<pesel>", methods=['PATCH'])
 def update_account(pesel):
     data = request.get_json()
     account = AccountRegistry.search_by_pesel(pesel)
-
     if account is None:
         return jsonify({"message": "Account not found"}), 404
 
@@ -55,7 +55,6 @@ def delete_all_accounts():
 def count_accounts():
     count = AccountRegistry.get_accounts_count()
     return jsonify({"count": count}), 200
-
 
 @app.route("/api/accounts/unique", methods=['POST'])
 def create_account_with_unique_pesel():
@@ -85,9 +84,7 @@ def transfer_funds(pesel):
         account.przelew_przychodzacy(amount)
     elif transfer_type == "outgoing":
         target_account = AccountRegistry.search_by_pesel(data.get("target_pesel"))
-        if not target_account:
-            return jsonify({"message": "nie znaleziono konta"}), 422
-        if not account.przelew_wychodzacy(amount, target_account):
+        if not target_account or not account.przelew_wychodzacy(amount, target_account):
             return jsonify({"message": "target ne znaleziony lub za malo srodkow"}), 422
     elif transfer_type == "express":
         target_account = AccountRegistry.search_by_pesel(data.get("target_pesel"))
@@ -95,6 +92,8 @@ def transfer_funds(pesel):
             return jsonify({"message": "nie znaleziono konta"}), 422
         if not account.przelew_ekspresowy(amount, target_account):
             return jsonify({"message": "target ne znaleziony lub za malo srodkow"}), 422
+    else:
+        return jsonify({"message": "nienznay typ przelewu"}), 400
 
     return jsonify({"message": "zlecenie przyjete"}), 200
 
