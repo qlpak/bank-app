@@ -28,13 +28,13 @@ class AccountRegistry:
         return False
 
     @classmethod
-    def update_account(cls, pesel, imie=None, nazwisko=None):
+    def update_account(cls, pesel, name=None, surname=None):
         account = cls.search_by_pesel(pesel)
         if account:
-            if imie is not None:
-                account.imie = imie
-            if nazwisko is not None:
-                account.nazwisko = nazwisko
+            if name is not None:
+                account.name = name
+            if surname is not None:
+                account.surname = surname
             return True
         return False
 
@@ -49,7 +49,7 @@ class AccountRegistry:
     @classmethod
     def dump_backup(cls, file_path: str):
         personal_accounts = [
-            {"imie": acc.imie, "nazwisko": acc.nazwisko, "pesel": acc.pesel, "saldo": acc.saldo}
+            {"name": acc.name, "surname": acc.surname, "pesel": acc.pesel, "saldo": acc.saldo}
             for acc in cls.registry if isinstance(acc, KontoOsobiste)
         ]
         with open(file_path, 'w') as file:
@@ -61,4 +61,4 @@ class AccountRegistry:
             data = json.load(file)
         cls.clear_registry()
         for acc in data:
-            cls.add_account(KontoOsobiste(acc['imie'], acc['nazwisko'], acc['pesel']))
+            cls.add_account(KontoOsobiste(acc['name'], acc['surname'], acc['pesel']))

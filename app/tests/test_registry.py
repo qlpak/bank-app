@@ -74,19 +74,19 @@ class TestRegistry(unittest.TestCase):
         self.assertEqual(AccountRegistry.get_accounts_count(), expected_count, message)
 
     @parameterized.expand([
-        ("aktualizacja pełna", "12345678910", {"imie": "andrew", "nazwisko": "broski"}, "andrew", "broski"),
-        ("aktualizacja częściowa", "12345678910", {"imie": "andrew"}, "andrew", "Nowak"),
-        ("konto nie istnieje", "99999999999", {"imie": "Test"}, None, None)
+        ("aktualizacja pełna", "12345678910", {"name": "andrew", "surname": "broski"}, "andrew", "broski"),
+        ("aktualizacja częściowa", "12345678910", {"name": "andrew"}, "andrew", "Nowak"),
+        ("konto nie istnieje", "99999999999", {"name": "Test"}, None, None)
     ])
-    def test_update_account(self, test_name, pesel, updates, expected_imie, expected_nazwisko):
+    def test_update_account(self, test_name, pesel, updates, expected_name, expected_surname):
         AccountRegistry.add_account(self.konto)
         AccountRegistry.update_account(pesel, **updates)
         updated_account = AccountRegistry.search_by_pesel(pesel)
         if updated_account is None:
             self.assertEqual(updated_account, None, "konto ktore nie istnieje zostalo updateowane")
         else:
-            self.assertEqual(updated_account.imie, expected_imie, "imie nie zostalo zupdateowane")
-            self.assertEqual(updated_account.nazwisko, expected_nazwisko, "nazwisko nie zostalo zupdateowane")
+            self.assertEqual(updated_account.name, expected_name, "imie nie zostalo zupdateowane")
+            self.assertEqual(updated_account.surname, expected_surname, "nazwisko nie zostalo zupdateowane")
 
     @parameterized.expand([
         ("brak kont", [], 0, "rejestr mial byc pusty"),

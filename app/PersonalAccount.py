@@ -2,8 +2,8 @@ from .Konto import Konto
 from datetime import datetime
 
 class KontoOsobiste(Konto):
-    def __init__(self, imie, nazwisko, pesel, kod_rabatowy=None):
-        super().__init__(imie, nazwisko, pesel, kod_rabatowy)
+    def __init__(self, name, surname, pesel, kod_rabatowy=None):
+        super().__init__(name, surname, pesel, kod_rabatowy)
 
     def przelew_ekspresowy(self, kwota, konto_docelowe):
         oplata = 1

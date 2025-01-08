@@ -6,8 +6,9 @@ import os
 @app.route("/api/accounts", methods=['POST'])
 def create_account():
     data = request.get_json()
-    print(f"Create account request: {data}")
-    konto = KontoOsobiste(data["imie"], data["nazwisko"], data["pesel"])
+    saldo = data.get("saldo")
+    konto = KontoOsobiste(data["name"], data["surname"], data["pesel"])
+    konto.saldo = saldo
     AccountRegistry.add_account(konto)
     return jsonify({"message": "Account created"}), 201
 
@@ -17,8 +18,8 @@ def get_account_by_pesel(pesel):
     if account is None:
         return jsonify({"message": "konta brak"}), 404
     return jsonify({
-        "imie": account.imie,
-        "nazwisko": account.nazwisko,
+        "name": account.name,
+        "surname": account.surname,
         "pesel": account.pesel,
         "saldo": account.saldo
     }), 200
@@ -34,8 +35,8 @@ def update_account(pesel):
 
     AccountRegistry.update_account(
         pesel,
-        imie=data.get("imie"),
-        nazwisko=data.get("nazwisko")
+        name=data.get("name"),
+        surname=data.get("surname")
     )
     return jsonify({"message": "Account updated"}), 200
 
@@ -61,17 +62,15 @@ def create_account_with_unique_pesel():
     data = request.get_json()
 
     if not AccountRegistry.is_pesel_unique(data["pesel"]):
-        print(f"PESEL already exists: {data['pesel']}")
         return jsonify({"message": "PESEL already exists"}), 409
 
-    konto = KontoOsobiste(data["imie"], data["nazwisko"], data["pesel"])
+    konto = KontoOsobiste(data["name"], data["surname"], data["pesel"])
     AccountRegistry.add_account(konto)
     return jsonify({"message": "Account created"}), 201
 
 @app.route("/api/accounts/<pesel>/transfer", methods=['POST'])
 def transfer_funds(pesel):
     data = request.get_json()
-
     account = AccountRegistry.search_by_pesel(pesel)
     if account is None:
         return jsonify({"message": "nie znaleziono konta"}), 404
@@ -86,7 +85,9 @@ def transfer_funds(pesel):
         account.przelew_przychodzacy(amount)
     elif transfer_type == "outgoing":
         target_account = AccountRegistry.search_by_pesel(data.get("target_pesel"))
-        if not target_account or not account.przelew_wychodzacy(amount, target_account):
+        if not target_account:
+            return jsonify({"message": "nie znaleziono konta"}), 422
+        if not account.przelew_wychodzacy(amount, target_account):
             return jsonify({"message": "target ne znaleziony lub za malo srodkow"}), 422
     elif transfer_type == "express":
         target_account = AccountRegistry.search_by_pesel(data.get("target_pesel"))
@@ -94,8 +95,6 @@ def transfer_funds(pesel):
             return jsonify({"message": "nie znaleziono konta"}), 422
         if not account.przelew_ekspresowy(amount, target_account):
             return jsonify({"message": "target ne znaleziony lub za malo srodkow"}), 422
-    else:
-        return jsonify({"message": "nienznay typ przelewu"}), 400
 
     return jsonify({"message": "zlecenie przyjete"}), 200
 

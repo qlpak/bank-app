@@ -1,7 +1,7 @@
 class Konto:
-    def __init__(self, imie, nazwisko, pesel, kod_rabatowy=None):
-        self.imie = imie
-        self.nazwisko = nazwisko
+    def __init__(self, name, surname, pesel, kod_rabatowy=None):
+        self.name = name
+        self.surname = surname
         self.saldo = 0
         self.historia = []
 
