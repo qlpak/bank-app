@@ -54,3 +54,6 @@ jobs:
 
     - name: Run API tests
       run: python3 -m unittest discover -s app/api_tests -p "test_api_*.py"
+
+    - name: Run BDD tests
+      run: behave
