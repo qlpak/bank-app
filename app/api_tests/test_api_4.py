@@ -6,8 +6,8 @@ class TestBackupAPI(unittest.TestCase):
     base_url = "http://127.0.0.1:5000/api/accounts"
     backup_url = f"{base_url}/backup"
     sample_account = {
-        "imie": "Jan",
-        "nazwisko": "Kowalski",
+        "name": "Jan",
+        "surname": "Kowalski",
         "pesel": "12345678901"
     }
 
@@ -31,7 +31,7 @@ class TestBackupAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200, "backup load failed")
         restored_account = requests.get(f"{self.base_url}/{self.sample_account['pesel']}")
         self.assertEqual(restored_account.status_code, 200, "restored account not found")
-        self.assertEqual(restored_account.json()["imie"], self.sample_account["imie"])
+        self.assertEqual(restored_account.json()["name"], self.sample_account["name"])
 
     def test_load_backup_file_not_found(self):
         if os.path.exists("backup.json"):

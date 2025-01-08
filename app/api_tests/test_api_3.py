@@ -9,13 +9,13 @@ class TestTransfersApi(unittest.TestCase):
         self.target_pesel = "98765432109"
 
         requests.post(f"{url}", json={
-            "imie": "marek",
-            "nazwisko": "markowski",
+            "name": "marek",
+            "surname": "markowski",
             "pesel": self.pesel
         })
         requests.post(f"{url}", json={
-            "imie": "anne",
-            "nazwisko": "marie",
+            "name": "anne",
+            "surname": "marie",
             "pesel": self.target_pesel
         })
 

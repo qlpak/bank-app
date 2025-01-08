@@ -1,13 +1,16 @@
 from flask import Flask, request, jsonify
 from app.AccountRegistry import AccountRegistry
 from app.PersonalAccount import KontoOsobiste
-app = Flask(__name__)
 import os
+
+app = Flask(__name__)
+
 @app.route("/api/accounts", methods=['POST'])
 def create_account():
     data = request.get_json()
-    print(f"Create account request: {data}")
-    konto = KontoOsobiste(data["imie"], data["nazwisko"], data["pesel"])
+    saldo = data.get("saldo", 0)
+    konto = KontoOsobiste(data["name"], data["surname"], data["pesel"])
+    konto.saldo = saldo
     AccountRegistry.add_account(konto)
     return jsonify({"message": "Account created"}), 201
 
@@ -17,25 +20,23 @@ def get_account_by_pesel(pesel):
     if account is None:
         return jsonify({"message": "konta brak"}), 404
     return jsonify({
-        "imie": account.imie,
-        "nazwisko": account.nazwisko,
+        "name": account.name,
+        "surname": account.surname,
         "pesel": account.pesel,
         "saldo": account.saldo
     }), 200
-
 
 @app.route("/api/accounts/<pesel>", methods=['PATCH'])
 def update_account(pesel):
     data = request.get_json()
     account = AccountRegistry.search_by_pesel(pesel)
-
     if account is None:
         return jsonify({"message": "Account not found"}), 404
 
     AccountRegistry.update_account(
         pesel,
-        imie=data.get("imie"),
-        nazwisko=data.get("nazwisko")
+        name=data.get("name"),
+        surname=data.get("surname")
     )
     return jsonify({"message": "Account updated"}), 200
 
@@ -55,23 +56,20 @@ def count_accounts():
     count = AccountRegistry.get_accounts_count()
     return jsonify({"count": count}), 200
 
-
 @app.route("/api/accounts/unique", methods=['POST'])
 def create_account_with_unique_pesel():
     data = request.get_json()
 
     if not AccountRegistry.is_pesel_unique(data["pesel"]):
-        print(f"PESEL already exists: {data['pesel']}")
         return jsonify({"message": "PESEL already exists"}), 409
 
-    konto = KontoOsobiste(data["imie"], data["nazwisko"], data["pesel"])
+    konto = KontoOsobiste(data["name"], data["surname"], data["pesel"])
     AccountRegistry.add_account(konto)
     return jsonify({"message": "Account created"}), 201
 
 @app.route("/api/accounts/<pesel>/transfer", methods=['POST'])
 def transfer_funds(pesel):
     data = request.get_json()
-
     account = AccountRegistry.search_by_pesel(pesel)
     if account is None:
         return jsonify({"message": "nie znaleziono konta"}), 404

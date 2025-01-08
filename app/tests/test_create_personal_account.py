@@ -3,16 +3,16 @@ from parameterized import parameterized
 from ..PersonalAccount import KontoOsobiste
 
 class TestCreatePersonalAccount(unittest.TestCase):
-    imie = 'imie'
-    nazwisko = 'nazwisko'
+    name = 'name'
+    surname = 'surname'
     pesel = "12345678910"
 
     def setUp(self):
-        self.konto = KontoOsobiste(self.imie, self.nazwisko, self.pesel)
+        self.konto = KontoOsobiste(self.name, self.surname, self.pesel)
 
     def test_tworzenie_konta(self):
-        self.assertEqual(self.konto.imie, self.imie, "Imię nie zostało zapisane!")
-        self.assertEqual(self.konto.nazwisko, self.nazwisko, "Nazwisko nie zostało zapisane!")
+        self.assertEqual(self.konto.name, self.name, "Imię nie zostało zapisane!")
+        self.assertEqual(self.konto.surname, self.surname, "Nazwisko nie zostało zapisane!")
         self.assertEqual(self.konto.saldo, 0, "Saldo nie jest zerowe!")
         self.assertEqual(self.konto.pesel, self.pesel, "PESEL nie został zapisany")
 
@@ -20,7 +20,7 @@ class TestCreatePersonalAccount(unittest.TestCase):
         ('123', "niepoprawny pesel", "PESEL nie został zapisany jako niepoprawny"),
     ])
     def test_pesel_krotki(self, pesel, expected_pesel, message):
-        konto = KontoOsobiste(self.imie, self.nazwisko, pesel)
+        konto = KontoOsobiste(self.name, self.surname, pesel)
         self.assertEqual(konto.pesel, expected_pesel, message)
 
     @parameterized.expand([
@@ -29,7 +29,7 @@ class TestCreatePersonalAccount(unittest.TestCase):
         ("invalif", 0, "Poprawny kod rabatowy powinien dodać 50 zł do salda"),
     ])
     def test_kod_rabatowy(self, kod, expected_saldo, message):
-        konto = KontoOsobiste(self.imie, self.nazwisko, self.pesel, kod)
+        konto = KontoOsobiste(self.name, self.surname, self.pesel, kod)
         self.assertEqual(konto.saldo, expected_saldo, message)
 
     @parameterized.expand([
@@ -37,5 +37,5 @@ class TestCreatePersonalAccount(unittest.TestCase):
         ('85010452345', 50, "Osoba, która urodziła się po 1960, powinna dostać 50 zł"),
     ])
     def test_pesel_wiek_z_kodem_rabatowym(self, pesel, expected_saldo, message):
-        konto = KontoOsobiste(self.imie, self.nazwisko, pesel, "PROM_abc")
+        konto = KontoOsobiste(self.name, self.surname, pesel, "PROM_abc")
         self.assertEqual(konto.saldo, expected_saldo, message)

@@ -10,8 +10,8 @@ class TestUniquePesel(unittest.TestCase):
 
     def test_create_account_unique_pesel(self):
         data = {
-            "imie": "Gosia",
-            "nazwisko": "Goski",
+            "name": "Gosia",
+            "surname": "Goski",
             "pesel": "12345678901"
         }
         response = requests.post(f"{url}/unique", json=data)
@@ -20,8 +20,8 @@ class TestUniquePesel(unittest.TestCase):
 
     def test_create_account_duplicate_pesel(self):
         data = {
-            "imie": "Jan",
-            "nazwisko": "jakiś",
+            "name": "Jan",
+            "surname": "jakiś",
             "pesel": "12345678901"
         }
         requests.post(f"{url}/unique", json=data)
@@ -32,8 +32,8 @@ class TestUniquePesel(unittest.TestCase):
 
     def test_create_multiple_accounts_unique_pesel(self):
         accounts = [
-            {"imie": "Jan", "nazwisko": "jakis", "pesel": "12345678901"},
-            {"imie": "Anna", "nazwisko": "dentystka", "pesel": "98765432109"}
+            {"name": "Jan", "surname": "jakis", "pesel": "12345678901"},
+            {"name": "Anna", "surname": "dentystka", "pesel": "98765432109"}
         ]
         for account in accounts:
             response = requests.post(f"{url}/unique", json=account)

@@ -4,8 +4,8 @@ import requests
 class TestCRUD(unittest.TestCase):
     base_url = "http://127.0.0.1:5000/api/accounts"
     body = {
-        "imie": "James",
-        "nazwisko": "Hetfield",
+        "name": "James",
+        "surname": "Hetfield",
         "pesel": "89092909825"
     }
 
@@ -21,8 +21,8 @@ class TestCRUD(unittest.TestCase):
         pesel = self.body["pesel"]
         response = requests.get(f"{self.base_url}/{pesel}")
         self.assertEqual(response.status_code, 200, "wrong status code")
-        self.assertEqual(response.json()["imie"], self.body["imie"])
-        self.assertEqual(response.json()["nazwisko"], self.body["nazwisko"])
+        self.assertEqual(response.json()["name"], self.body["name"])
+        self.assertEqual(response.json()["surname"], self.body["surname"])
         self.assertEqual(response.json()["pesel"], self.body["pesel"])
         self.assertEqual(response.json()["saldo"], 0)
 
@@ -35,13 +35,13 @@ class TestCRUD(unittest.TestCase):
     def test_update_account(self):
         requests.post(self.base_url, json=self.body)
         pesel = self.body["pesel"]
-        update_body = {"imie": "kacpi"}
+        update_body = {"name": "kacpi"}
         response = requests.patch(f"{self.base_url}/{pesel}", json=update_body)
         self.assertEqual(response.status_code, 200, "wrong status code")
 
         updated_account = requests.get(f"{self.base_url}/{pesel}")
-        self.assertEqual(updated_account.json()["imie"], "kacpi")
-        self.assertEqual(updated_account.json()["nazwisko"], self.body["nazwisko"])
+        self.assertEqual(updated_account.json()["name"], "kacpi")
+        self.assertEqual(updated_account.json()["surname"], self.body["surname"])
 
     def test_delete_account(self):
         requests.post(self.base_url, json=self.body)
