@@ -26,7 +26,7 @@ jobs:
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
-        pip install flake8 coverage Flask
+        pip install flake8 coverage Flask behave
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         pip install parameterized requests
     - name: Lint with flake8
