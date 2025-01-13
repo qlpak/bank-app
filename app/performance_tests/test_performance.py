@@ -5,6 +5,9 @@ from time import time
 class TestPerformance(unittest.TestCase):
     base_url = "http://127.0.0.1:5000/api/accounts"
 
+    def tearDown(self):
+        requests.delete(f"{self.base_url}/all")
+
     def test_create_and_delete_accounts(self):
         for i in range(100):
             pesel = f"{90000000000 + i}"
