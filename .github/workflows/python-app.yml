@@ -57,3 +57,6 @@ jobs:
 
     - name: Run BDD tests
       run: behave
+
+    - name: Run performance tests
+      run: python3 -m unittest discover -s app/performance_tests
