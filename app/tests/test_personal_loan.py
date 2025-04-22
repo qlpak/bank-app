@@ -1,6 +1,6 @@
 import unittest
 from parameterized import parameterized
-from ..PersonalAccount import KontoOsobiste
+from ..PersonalAccount import PersonalAccount
 
 class TestPersonalLoan(unittest.TestCase):
     @parameterized.expand([
@@ -11,7 +11,7 @@ class TestPersonalLoan(unittest.TestCase):
         ([50, -50, 30, 40, -20], 200, False, "Warunki niespełnione - kredyt nie udzielony")
     ])
     def test_zaciagnij_kredyt_osobisty(self, historia, kwota, expected, message):
-        konto = KontoOsobiste("Jan", "Kowalski", "12345678901")
+        konto = PersonalAccount("Jan", "Kowalski", "12345678901")
         konto.historia = historia
         wynik = konto.zaciagnij_kredyt(kwota)
         self.assertEqual(wynik, expected, message)

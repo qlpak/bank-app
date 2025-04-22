@@ -1,6 +1,6 @@
 import unittest
 from parameterized import parameterized
-from ..CompanyAccount import KontoFirmowe
+from ..CompanyAccount import CompanyAccount
 
 class TestCreateCompanyAccount(unittest.TestCase):
     @parameterized.expand([
@@ -8,5 +8,5 @@ class TestCreateCompanyAccount(unittest.TestCase):
         ("firma x", "12345", "Niepoprawny NIP!", "NIP niepoprawny")
 ])
     def test_konto_firmowe_nip(self, nazwa_firmy, nip, expected_nip, message):
-        konto_firmowe = KontoFirmowe(nazwa_firmy, nip)
+        konto_firmowe = CompanyAccount(nazwa_firmy, nip)
         self.assertEqual(konto_firmowe.nip, expected_nip, message)

@@ -1,5 +1,5 @@
 import json
-from .PersonalAccount import KontoOsobiste
+from .PersonalAccount import PersonalAccount
 
 class AccountRegistry:
     registry = []
@@ -50,7 +50,7 @@ class AccountRegistry:
     def dump_backup(cls, file_path: str):
         personal_accounts = [
             {"name": acc.name, "surname": acc.surname, "pesel": acc.pesel, "saldo": acc.saldo}
-            for acc in cls.registry if isinstance(acc, KontoOsobiste)
+            for acc in cls.registry if isinstance(acc, PersonalAccount)
         ]
         with open(file_path, 'w') as file:
             json.dump(personal_accounts, file)
@@ -61,4 +61,4 @@ class AccountRegistry:
             data = json.load(file)
         cls.clear_registry()
         for acc in data:
-            cls.add_account(KontoOsobiste(acc['name'], acc['surname'], acc['pesel']))
+            cls.add_account(PersonalAccount(acc['name'], acc['surname'], acc['pesel']))

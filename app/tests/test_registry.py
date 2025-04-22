@@ -2,7 +2,7 @@ import unittest
 import os
 import json
 from parameterized import parameterized
-from ..PersonalAccount import KontoOsobiste
+from ..PersonalAccount import PersonalAccount
 from ..AccountRegistry import AccountRegistry
 
 class TestRegistry(unittest.TestCase):
@@ -15,13 +15,13 @@ class TestRegistry(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.konto = KontoOsobiste(cls.imie, cls.nazwisko, cls.pesel)
-        cls.konto_00 = KontoOsobiste(cls.imie, cls.nazwisko, cls.pesel_00)
-        cls.konto_75 = KontoOsobiste(cls.imie, cls.nazwisko, cls.pesel_75)
+        cls.konto = PersonalAccount(cls.imie, cls.nazwisko, cls.pesel)
+        cls.konto_00 = PersonalAccount(cls.imie, cls.nazwisko, cls.pesel_00)
+        cls.konto_75 = PersonalAccount(cls.imie, cls.nazwisko, cls.pesel_75)
 
     def setUp(self):
         AccountRegistry.registry = []
-        self.konto = KontoOsobiste(self.imie, self.nazwisko, self.pesel)
+        self.konto = PersonalAccount(self.imie, self.nazwisko, self.pesel)
 
     def test_add_acc(self):
         AccountRegistry.add_account(self.konto)

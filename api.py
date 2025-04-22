@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from app.AccountRegistry import AccountRegistry
-from app.PersonalAccount import KontoOsobiste
+from app.PersonalAccount import PersonalAccount
 import os
 
 app = Flask(__name__)
@@ -9,7 +9,7 @@ app = Flask(__name__)
 def create_account():
     data = request.get_json()
     saldo = data.get("saldo", 0)
-    konto = KontoOsobiste(data["name"], data["surname"], data["pesel"])
+    konto = PersonalAccount(data["name"], data["surname"], data["pesel"])
     konto.saldo = saldo
     AccountRegistry.add_account(konto)
     return jsonify({"message": "Account created"}), 201
@@ -63,7 +63,7 @@ def create_account_with_unique_pesel():
     if not AccountRegistry.is_pesel_unique(data["pesel"]):
         return jsonify({"message": "PESEL already exists"}), 409
 
-    konto = KontoOsobiste(data["name"], data["surname"], data["pesel"])
+    konto = PersonalAccount(data["name"], data["surname"], data["pesel"])
     AccountRegistry.add_account(konto)
     return jsonify({"message": "Account created"}), 201
 

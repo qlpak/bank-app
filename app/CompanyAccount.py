@@ -1,9 +1,9 @@
 import os
 import requests
 from datetime import datetime
-from .Konto import Konto
+from .Account import Account
 
-class KontoFirmowe(Konto):
+class CompanyAccount(Account):
     def __init__(self, nazwa_firmy, nip):
         self.nazwa_firmy = nazwa_firmy
         self.nip = nip if len(nip) == 10 else "Niepoprawny NIP!"

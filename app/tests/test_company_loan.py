@@ -1,6 +1,6 @@
 import unittest
 from parameterized import parameterized
-from ..CompanyAccount import KontoFirmowe
+from ..CompanyAccount import CompanyAccount
 
 class TestCompanyLoan(unittest.TestCase):
     @parameterized.expand([
@@ -11,7 +11,7 @@ class TestCompanyLoan(unittest.TestCase):
         (4000, 2000, [-100, -1775], True, "kredyt nie ok, brak kwoty 1775"),
 ])
     def test_zaciagnij_kredyt_firmowy(self, saldo, kwota, historia, expected, message):
-        konto_firmowe = KontoFirmowe("salon pieknych fryzur", "1234567890")
+        konto_firmowe = CompanyAccount("salon pieknych fryzur", "1234567890")
         konto_firmowe.saldo = saldo
         konto_firmowe.historia = historia
         wynik = konto_firmowe.zaciagnij_kredyt(kwota)

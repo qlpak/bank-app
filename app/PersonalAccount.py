@@ -1,7 +1,7 @@
-from .Konto import Konto
+from .Account import Account
 from datetime import datetime
 
-class KontoOsobiste(Konto):
+class PersonalAccount(Account):
     def __init__(self, name, surname, pesel, kod_rabatowy=None):
         super().__init__(name, surname, pesel, kod_rabatowy)
 

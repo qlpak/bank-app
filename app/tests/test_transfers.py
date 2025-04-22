@@ -1,8 +1,8 @@
 import unittest
 from parameterized import parameterized
-from ..Konto import Konto
-from ..PersonalAccount import KontoOsobiste
-from ..CompanyAccount import KontoFirmowe
+from ..Account import Account
+from ..PersonalAccount import PersonalAccount
+from ..CompanyAccount import CompanyAccount
 
 class TestTransfers(unittest.TestCase):
     @parameterized.expand([
@@ -10,8 +10,8 @@ class TestTransfers(unittest.TestCase):
         (30, 50, False, 30, 0, "Przelew powinien zakończyć się niepowodzeniem przy niewystarczających środkach")
     ])
     def test_przelew_wychodzacy(self, saldo_nadawcy, kwota, expected_result, expected_saldo_nadawcy, expected_saldo_odbiorcy, message):
-        nadawca = KontoOsobiste("Jan", "Kowalski", "12345678901")
-        odbiorca = KontoOsobiste("Marek", "Markowski", "10987654321")
+        nadawca = PersonalAccount("Jan", "Kowalski", "12345678901")
+        odbiorca = PersonalAccount("Marek", "Markowski", "10987654321")
         nadawca.saldo = saldo_nadawcy
         wynik = nadawca.przelew_wychodzacy(kwota, odbiorca)
         self.assertEqual(wynik, expected_result, message)
@@ -23,8 +23,8 @@ class TestTransfers(unittest.TestCase):
         (5, 5, 1, False, 5, 0, "Przelew ekspresowy powinien się nie powieść przy niewystarczających środkach"),
     ])
     def test_przelew_ekspresowy_osobisty(self, saldo, kwota, oplata, expected_result, saldo_po, saldo_odbiorcy, message):
-        nadawca = KontoOsobiste("Jan", "Kowalski", "12345678901")
-        odbiorca = KontoOsobiste("Nikola", "Lewandowska", "10987654321")
+        nadawca = PersonalAccount("Jan", "Kowalski", "12345678901")
+        odbiorca = PersonalAccount("Nikola", "Lewandowska", "10987654321")
         nadawca.saldo = saldo
         wynik = nadawca.przelew_ekspresowy(kwota, odbiorca)
         self.assertEqual(wynik, expected_result, message)
@@ -36,8 +36,8 @@ class TestTransfers(unittest.TestCase):
         (5, 5, 5, False, 5, 0, "Przelew ekspresowy powinien się nie powieść przy niewystarczających środkach"),
     ])
     def test_przelew_ekspresowy_firmowy(self, saldo, kwota, oplata, expected_result, saldo_po, saldo_odbiorcy, message):
-        nadawca = KontoFirmowe("PZU", "1234567890")
-        odbiorca = Konto("Ktos", "Ciekawski", "10987654321")
+        nadawca = CompanyAccount("PZU", "1234567890")
+        odbiorca = Account("Ktos", "Ciekawski", "10987654321")
         nadawca.saldo = saldo
         wynik = nadawca.przelew_ekspresowy(kwota, odbiorca)
         self.assertEqual(wynik, expected_result, message)
@@ -45,8 +45,8 @@ class TestTransfers(unittest.TestCase):
         self.assertEqual(odbiorca.saldo, saldo_odbiorcy, "Saldo odbiorcy po przelewie ekspresowym nie jest zgodne z oczekiwanym")
 
     def test_historia_przelewow(self):
-        nadawca = KontoOsobiste("Kacperek", "Ziutowski", "12345678901")
-        odbiorca = Konto("Coco", "Gofer", "10987654321")
+        nadawca = PersonalAccount("Kacperek", "Ziutowski", "12345678901")
+        odbiorca = Account("Coco", "Gofer", "10987654321")
         nadawca.saldo = 1000
 
         odbiorca.przelew_przychodzacy(500)

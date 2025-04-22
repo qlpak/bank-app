@@ -1,4 +1,4 @@
-class Konto:
+class Account:
     def __init__(self, name, surname, pesel, kod_rabatowy=None):
         self.name = name
         self.surname = surname
